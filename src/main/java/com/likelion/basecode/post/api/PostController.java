@@ -10,6 +10,7 @@ import com.likelion.basecode.post.application.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,8 +21,9 @@ public class PostController {
 
     // 게시물 저장
     @PostMapping("/save")
-    public ApiResTemplate<PostInfoResponseDto> postSave(@RequestBody @Valid PostSaveRequestDto postSaveRequestDto) {
-        PostInfoResponseDto postListResponseDto = postService.postSave(postSaveRequestDto);
+    public ApiResTemplate<PostInfoResponseDto> postSave(@RequestPart("post") @Valid PostSaveRequestDto postSaveRequestDto,
+                                                        @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        PostInfoResponseDto postListResponseDto = postService.postSave(postSaveRequestDto, imageFile);
         return ApiResTemplate.successResponse(SuccessCode.POST_SAVE_SUCCESS, postListResponseDto);
     }
 
@@ -35,8 +37,9 @@ public class PostController {
     // 게시물 id를 기준으로 사용자가 작성한 게시물 수정
     @PatchMapping("/{postId}")
     public ApiResTemplate<PostInfoResponseDto> postUpdate(@PathVariable("postId") Long postId,
-                                                          @RequestBody PostUpdateRequestDto postUpdateRequestDto) {
-        PostInfoResponseDto postInfoResponseDto = postService.postUpdate(postId, postUpdateRequestDto);
+                                                          @RequestPart("post") PostUpdateRequestDto postUpdateRequestDto,
+                                                          @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        PostInfoResponseDto postInfoResponseDto = postService.postUpdate(postId, postUpdateRequestDto, imageFile);
         return ApiResTemplate.successResponse(SuccessCode.POST_SAVE_SUCCESS, postInfoResponseDto);
     }
 

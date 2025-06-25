@@ -3,6 +3,7 @@ package com.likelion.basecode.post.application;
 import com.likelion.basecode.common.client.TagRecommendationClient;
 import com.likelion.basecode.common.error.ErrorCode;
 import com.likelion.basecode.common.exception.BusinessException;
+import com.likelion.basecode.common.s3.S3Uploader;
 import com.likelion.basecode.member.domain.Member;
 import com.likelion.basecode.member.domain.repository.MemberRepository;
 import com.likelion.basecode.post.api.dto.response.PostInfoResponseDto;
@@ -18,6 +19,8 @@ import com.likelion.basecode.tag.domain.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Service
@@ -30,18 +33,25 @@ public class PostService {
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
     private final TagRecommendationClient tagClient;
+    private final S3Uploader s3Uploader;
 
     // 게시물 저장
     @Transactional
-    public PostInfoResponseDto postSave(PostSaveRequestDto postSaveRequestDto) {
+    public PostInfoResponseDto postSave(PostSaveRequestDto postSaveRequestDto, MultipartFile imageFile) {
         Member member = memberRepository.findById(postSaveRequestDto.memberId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND_EXCEPTION,
                         ErrorCode.MEMBER_NOT_FOUND_EXCEPTION.getMessage() + postSaveRequestDto.memberId()));
+
+        String imageUrl = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            imageUrl = s3Uploader.upload(imageFile, "post-images");
+        }
 
 
         Post post = Post.builder()
                 .title(postSaveRequestDto.title())
                 .contents(postSaveRequestDto.contents())
+                .imageUrl(imageUrl)
                 .member(member)
                 .build();
 
@@ -73,11 +83,15 @@ public class PostService {
 
     // 게시물 수정
     @Transactional
-    public PostInfoResponseDto postUpdate(Long postId,
-                           PostUpdateRequestDto postUpdateRequestDto) {
+    public PostInfoResponseDto postUpdate(Long postId, PostUpdateRequestDto postUpdateRequestDto, MultipartFile imageFile) {
         Post postWithTags = postRepository.findByIdWithTags(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND_EXCEPTION,
                         ErrorCode.POST_NOT_FOUND_EXCEPTION.getMessage() + postId));
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = s3Uploader.upload(imageFile, "post-images");
+            postWithTags.updateImage(imageUrl);
+        }
 
         postWithTags.update(postUpdateRequestDto);
 

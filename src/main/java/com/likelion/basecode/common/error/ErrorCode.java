@@ -20,7 +20,8 @@ public enum ErrorCode {
     BOOK_API_RESPONSE_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "도서 API 응답이 null입니다.", "BOOK_API_500"),
     BOOK_API_BODY_MALFORMED(HttpStatus.INTERNAL_SERVER_ERROR, "도서 API의 body 항목이 잘못되었습니다.", "BOOK_API_500"),
     BOOK_API_ITEMS_MALFORMED(HttpStatus.INTERNAL_SERVER_ERROR, "도서 API의 items 항목이 잘못되었습니다.", "BOOK_API_500"),
-    BOOK_API_ITEM_MALFORMED(HttpStatus.INTERNAL_SERVER_ERROR, "도서 API의 item 항목이 잘못되었습니다.", "BOOK_API_500");
+    BOOK_API_ITEM_MALFORMED(HttpStatus.INTERNAL_SERVER_ERROR, "도서 API의 item 항목이 잘못되었습니다.", "BOOK_API_500"),
+    S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 파일 업로드에 실패했습니다.", "S3_UPLOAD_FAIL_500");
 
     private final HttpStatus httpStatus;
     private final String message;

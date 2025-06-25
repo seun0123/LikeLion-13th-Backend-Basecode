@@ -9,7 +9,8 @@ public record PostInfoResponseDto(
         String title,
         String contents,
         String writer,
-        List<String> tags
+        List<String> tags,
+        String imageUrl
 ) {
     public static PostInfoResponseDto from(Post post) {
         return PostInfoResponseDto.builder()
@@ -21,6 +22,7 @@ public record PostInfoResponseDto(
                                 .map(postTag -> postTag.getTag().getName())
                                 .toList()
                 )
+                .imageUrl(post.getImageUrl())
                 .build();
     }
 }
